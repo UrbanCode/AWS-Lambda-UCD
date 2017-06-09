@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+    (c) Copyright IBM Corporation 2017.
+    This is licensed under the following license.
+    The Eclipse Public 1.0 License (http://www.eclipse.org/legal/epl-v10.html)
+    U.S. Government Users Restricted Rights:  Use, duplication or disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+-->
+<plugin xmlns="http://www.urbancode.com/PluginXMLSchema_v1" xmlns:server="http://www.urbancode.com/PluginServerXMLSchema_v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <header>
+    <identifier id="com.urbancode.air.plugin.awslambda" name="AWS Lambda" version="1"/>
+    <description>
+    The AWS Lambda plug-in supports the creation and invoking of AWS Lambda functions.
+    </description>
+    <tag>AWS/Lambda</tag>
+  </header>
+  <step-type name="Create Function">
+    <description>Create a new AWS Lambda function. (create-function)</description>
+    <properties>
+        <property name="functionName" required="true">
+            <property-ui type="textBox" label="Function Name" default-value="${p:component/aws.functionName}"
+                description="The name you want to assign to the function you are uploading."/>
+        </property>
+        <property name="runtime" required="true">
+          <property-ui type="textBox" label="Runtime" default-value="${p:component/aws.runtime}"
+              description="The runtime environment for the Lambda function you are uploading."/>
+        </property>
+        <property name="role" required="true">
+          <property-ui type="textBox" label="Role" default-value="${p:component/aws.role}"
+              description="The Amazon Resource Name (ARN) of the IAM role that Lambda assumes when it executes your function to access any other Amazon Web Services (AWS) resources"/>
+        </property>
+        <property name="handler" required="true">
+          <property-ui type="textBox" label="Handler" default-value="${p:component/aws.handler}"
+              description="The function within your code that Lambda calls to begin execution."/>
+        </property>
+        <property name="zipFile" required="false">
+          <property-ui type="textBox" label="Zip File" default-value="${p?:component/aws.zipFile}"
+              description="The path to the zip file of the code you are uploading. This is required unless the `code` argument is specified."/>
+        </property>
+        <property name="otherArgs">
+            <property-ui type="textAreaBox" label="Other Properties" default-value="${p?:component/aws.otherArgs}"
+            description="Other arguments for the aws lambda command. Seperate each name and value with an equals (=) and delimit each pair by new line (\n). Example: name=value"/>
+        </property>
+        <property name="profile">
+            <property-ui type="textBox" label="Profile" default-value="${p?:resource/aws.profile}"
+            description=""
+            hidden="true" />
+        </property>
+        <property name="accessKey">
+            <property-ui type="textBox" label="AWS Access Key ID" default-value="${p?:resource/aws.aws_access_key_id}"
+            description=""
+            hidden="true" />
+        </property>
+        <property name="secretKey">
+            <property-ui type="textBox" label="AWS Secret Access Key" default-value="${p?:resource/aws.aws_secret_access_key}"
+            description=""
+            hidden="true" />
+        </property>
+    </properties>
+    <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put(new java.lang.String("Status"), new java.lang.String("Failure"));
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+    <command program="${GROOVY_HOME}/bin/groovy">
+      <arg value="-cp"/>
+      <arg path="classes:lib/securedata.jar:lib/jettison-1.1.jar:lib/commons-codec.jar:lib/CommonsUtil.jar"/>
+      <arg file="createFunction.groovy"/>
+      <arg file="${PLUGIN_INPUT_PROPS}"/>
+      <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+    </command>
+  </step-type>
+  <step-type name="Delete Function">
+    <description>Delete the specified AWS Lambda function code and configuration. (delete-function)</description>
+    <properties>
+        <property name="functionName" required="true">
+            <property-ui type="textBox" label="Function Name" default-value="${p:component/aws.functionName}"
+                description="The name of the AWS Lambda function you wish to delete."/>
+        </property>
+        <property name="otherArgs">
+            <property-ui type="textAreaBox" label="Other Properties" default-value="${p?:component/aws.otherArgs}"
+            description="Other arguments for the aws lambda command. Seperate each name and value with an equals (=) and delimit each pair by new line (\n). Example: name=value"/>
+        </property>
+        <property name="profile">
+            <property-ui type="textBox" label="Profile" default-value="${p?:resource/aws.profile}"
+            description=""
+            hidden="true" />
+        </property>
+        <property name="accessKey">
+            <property-ui type="textBox" label="AWS Access Key ID" default-value="${p?:resource/aws.aws_access_key_id}"
+            description=""
+            hidden="true" />
+        </property>
+        <property name="secretKey">
+            <property-ui type="textBox" label="AWS Secret Access Key" default-value="${p?:resource/aws.aws_secret_access_key}"
+            description=""
+            hidden="true" />
+        </property>
+    </properties>
+    <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put(new java.lang.String("Status"), new java.lang.String("Failure"));
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+    <command program="${GROOVY_HOME}/bin/groovy">
+      <arg value="-cp"/>
+      <arg path="classes:lib/securedata.jar:lib/jettison-1.1.jar:lib/commons-codec.jar:lib/CommonsUtil.jar"/>
+      <arg file="deleteFunction.groovy"/>
+      <arg file="${PLUGIN_INPUT_PROPS}"/>
+      <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+    </command>
+  </step-type>
+  <step-type name="Invoke">
+    <description>Invoke a specific AWS Lambda function. (invoke)</description>
+    <properties>
+        <property name="functionName" required="true">
+            <property-ui type="textBox" label="Function Name" default-value="${p:component/aws.functionName}"
+                description="The name of the function you wish to invoke."/>
+        </property>
+        <property name="outfile">
+          <property-ui type="textBox" label="Outfile" default-value="${p:component/aws.outfile}"
+              description="Specify a filename where the content will be saved. It will be saved in the local directory."/>
+        </property>
+        <property name="otherArgs">
+            <property-ui type="textAreaBox" label="Other Properties" default-value="${p?:component/aws.otherArgs}"
+            description="Other arguments for the aws lambda command. Seperate each name and value with an equals (=) and delimit each pair by new line (\n). Example: name=value"/>
+        </property>
+        <property name="profile">
+            <property-ui type="textBox" label="Profile" default-value="${p?:resource/aws.profile}"
+            description=""
+            hidden="true" />
+        </property>
+        <property name="accessKey">
+            <property-ui type="textBox" label="AWS Access Key ID" default-value="${p?:resource/aws.aws_access_key_id}"
+            description=""
+            hidden="true" />
+        </property>
+        <property name="secretKey">
+            <property-ui type="textBox" label="AWS Secret Access Key" default-value="${p?:resource/aws.aws_secret_access_key}"
+            description=""
+            hidden="true" />
+        </property>
+    </properties>
+    <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put(new java.lang.String("Status"), new java.lang.String("Failure"));
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+    <command program="${GROOVY_HOME}/bin/groovy">
+      <arg value="-cp"/>
+      <arg path="classes:lib/securedata.jar:lib/jettison-1.1.jar:lib/commons-codec.jar:lib/CommonsUtil.jar"/>
+      <arg file="invoke.groovy"/>
+      <arg file="${PLUGIN_INPUT_PROPS}"/>
+      <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+    </command>
+  </step-type>
+</plugin>
