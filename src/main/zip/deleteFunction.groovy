@@ -33,7 +33,4 @@ command += otherArgs
 LambdaHelper lh = new LambdaHelper(profile, accessKey, secretKey)
 int exitCode = lh.runCommand("Deleting function...", command)
 
-println "Exit Code: " + exitCode
-
-
 println "Successfully deleted the '${functionName}' Lambda function."

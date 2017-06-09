@@ -55,7 +55,4 @@ command += otherArgs
 LambdaHelper lh = new LambdaHelper(profile, accessKey, secretKey)
 int exitCode = lh.runCommand("Creating function...", command)
 
-println "Exit Code: " + exitCode
-
-
 println "Successfully created the '${functionName}' Lambda function."
