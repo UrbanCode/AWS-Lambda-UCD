@@ -39,4 +39,4 @@ LambdaHelper lh = new LambdaHelper(profile, accessKey, secretKey)
 int exitCode = lh.runCommand("Invoking function...", command)
 
 apTool.setOutputProperties()
-println "Successfully deleted the '${functionName}' Lambda function."
+println "Successfully invoked the '${functionName}' Lambda function."
